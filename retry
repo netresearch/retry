@@ -1,0 +1,83 @@
+#!/bin/bash
+
+repeat=30
+wait=2
+silent=0
+
+for i in "$@"
+do
+case $i in
+    -n)
+    repeat=$2
+    shift
+    shift
+    ;;
+    --number=*)
+    repeat="${i#*=}"
+    shift
+    ;;
+    -w)
+    wait=$2
+    shift
+    shift
+    ;;
+    --wait=*)
+    wait="${i#*=}"
+    shift
+    ;;
+    -s|--silent)
+    silent=1
+    shift
+    ;;
+    -h|--help)
+    echo "Retry a command several times"
+    echo "Usage: retry [OPTION]... RETRY_COMMAND [SUCCESS_COMMAND]..."
+    echo ""
+    echo "-n, --number Number of retries (defaults to 30)"
+    echo "-w, --wait   Seconds to wait before each retry (defaults to 2)"
+    echo "-s, --silent Hide output of command"
+    echo "-h, --help   Show this help"
+    echo ""
+    echo "Retries RETRY_COMMAND -n times and executes SUCCESS_COMMANDs"
+    echo "after RETRY_COMMAND finally succeeded."
+    exit
+    ;;
+    -*)
+      echo "Unknow option $i"
+      exit 1
+    ;;
+esac
+done
+
+if [[ ! $wait =~ ^-?[0-9]+$ ]]; then
+    echo "Wait option must be integer"
+    exit 1
+fi
+if [[ ! $repeat =~ ^-?[0-9]+$ ]]; then
+    echo "Wait option must be integer"
+    exit 1
+fi
+
+command=$1
+if [[ $silent ]]; then
+    command="($command) > /dev/null 2>&1"
+fi
+
+i=0
+until [ $i -ge $repeat ]
+do
+  eval $command && break
+  i=$[$i+1]
+  echo "Waiting $wait seconds for $i. retry"
+  sleep $wait
+done
+
+if [ "$i" = "$repeat" ]; then
+  echo >&2 "process failed after $repeat retries"
+  exit 1
+fi
+
+for command in "${@:2}"
+do
+  eval "$command"
+done
