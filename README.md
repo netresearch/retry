@@ -21,8 +21,8 @@
 ## Example
 
     # Wait for a database connection to be available
-    retry -s ""mysql -e 'SELECT 1' -h $DATABASE_HOST -u $DATABASE_USER -p$DATABASE_PASSWORD $DATABASE_NAME" "echo 'Database ready'"
+    retry -s "mysql -e 'SELECT 1' -h $DATABASE_HOST -u $DATABASE_USER -p$DATABASE_PASSWORD $DATABASE_NAME" "echo 'Database ready'"
     
     # Is the same as
-    retry -s ""mysql -e 'SELECT 1' -h $DATABASE_HOST -u $DATABASE_USER -p$DATABASE_PASSWORD $DATABASE_NAME"
+    retry -s "mysql -e 'SELECT 1' -h $DATABASE_HOST -u $DATABASE_USER -p$DATABASE_PASSWORD $DATABASE_NAME"
     echo "Database ready"
